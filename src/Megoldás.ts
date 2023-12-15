@@ -3,12 +3,57 @@ import fs from "fs";
 import FelszállásJegy from "./FelszállásJegy";
 import FelszállásBérlet from "./FelszállásBérlet";
 
+export interface IMaxMegálló {
+    megálló: number;
+    felszálló: number;
+}
 export default class Megoldás {
     //0 20190326-0700 4170861 NYB 20190404
     #utasadatok: Felszállás[] = [];
 
     get utasokSzáma(): number {
         return this.#utasadatok.length;
+    }
+
+    get érvénytelenFelszállásokSzáma(): number {
+        let db: number = 0;
+        for (const e of this.#utasadatok) {
+            if (!e.ezÉrvényesFelszállás) db++;
+        }
+        return db;
+    }
+
+    get maxMegálló(): IMaxMegálló {
+        const max: IMaxMegálló = { felszálló: -1, megálló: -1 };
+        let aktMegálló: number = 0;
+        let aktFelszálló: number = 0;
+        for (const e of this.#utasadatok) {
+            if (e.megállóSorszáma == aktMegálló) aktFelszálló++;
+            else {
+                // váltás van a megálló számában:
+                if (aktFelszálló > max.felszálló) {
+                    max.felszálló = aktFelszálló;
+                    max.megálló = aktMegálló;
+                }
+                aktMegálló = e.megállóSorszáma;
+                aktFelszálló = 1;
+            }
+        }
+        // utolsó (29-es) megálló ellnőrzése:
+        if (aktFelszálló > max.felszálló) {
+            max.felszálló = aktFelszálló;
+            max.megálló = aktMegálló;
+        }
+        return max;
+    }
+
+    get maxMegállóVektor(): IMaxMegálló {
+        const max: IMaxMegálló = { felszálló: -1, megálló: -1 };
+        const stat: number[] = new Array(30).fill(0);
+        for (const e of this.#utasadatok) stat[e.megállóSorszáma]++;
+        max.felszálló = Math.max(...stat);
+        max.megálló = stat.indexOf(max.felszálló);
+        return max;
     }
 
     constructor(forrásFile: string) {
