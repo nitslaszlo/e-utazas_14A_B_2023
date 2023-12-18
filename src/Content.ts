@@ -1,7 +1,7 @@
 ﻿import fs from "fs"; //  https://nodejs.org/docs/latest-v14.x/api/fs.html
 import http from "http"; //  https://nodejs.org/docs/latest-v14.x/api/http.html
 // import url from "url"; //  https://nodejs.org/docs/latest-v14.x/api/url.html
-import Megoldás from "./Megoldás";
+import Megoldás, { IMaxMegálló } from "./Megoldás";
 
 export default function content(req: http.IncomingMessage, res: http.ServerResponse): void {
     // favicon.ico kérés kiszolgálása:
@@ -30,6 +30,16 @@ export default function content(req: http.IncomingMessage, res: http.ServerRespo
 
     res.write(`2. feladat\nA buszra ${mo.utasokSzáma} utas akart felszállni.\n`);
     res.write(`3. feladat\nA buszra ${mo.érvénytelenFelszállásokSzáma} utas nem szállhatott fel.\n`);
+
+    let legtöbbFelszálló: IMaxMegálló = mo.maxMegálló;
+    res.write(`4. feladat\nA legtöbb utas (${legtöbbFelszálló.felszálló} fő) a ${legtöbbFelszálló.megálló}. megállóban próbált felszállni.\n`);
+
+    legtöbbFelszálló = mo.maxMegállóVektor;
+    res.write(`4. feladat\nA legtöbb utas (${legtöbbFelszálló.felszálló} fő) a ${legtöbbFelszálló.megálló}. megállóban próbált felszállni.\n`);
+
+    res.write("5. feladat\n");
+    res.write(`Ingyenesen utazók száma:  ${mo.ingyenesUtazóFő} fő\n`);
+    res.write(`Kedvezményesen utazók száma:  ${mo.kedvezményesenUtazóFő} fő\n`);
 
     // <---- Fejezd be a kódolást
 
